@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="org.example.mapper.StudentMapper">
+
+    <!--
+        mybatis 中的select,insert,if,trim,sql,include,foreach，resultMap标签
+
+    -->
+        <resultMap id="BaseMap" type="org.example.entity.Student">
+            <id column="id" property="id" jdbcType="INTEGER"/>
+            <result column="name" property="name" jdbcType="VARCHAR"/>
+            <result column="hobby" property="hobby" jdbcType="VARCHAR"/>
+            <result column="major" property="major" jdbcType="VARCHAR"/>
+        </resultMap>
+    <sql id="Base_Column_List">
+        id,name,hobby
+    </sql>
+    <select id="selectStudentByHobby" parameterType="int" resultMap="BaseMap">
+        select * from student
+                <trim prefix="where" prefixOverrides="AND|OR">
+                        <if test="name!=null and name.length>0">AND name=#{name}</if>
+                        <if test="hobby!=null and hobby.length>0">AND hobby=#{hobby}</if>
+                </trim>
+    </select>
+
+        <insert id="insert" parameterType="org.example.entity.Student" useGeneratedKeys="true" keyProperty="id">
+            insert into student <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name!=null">name,</if>
+            <if test="hobby!=null">hobby,</if>
+            <if test="major!=null"> major,</if>
+            </trim>
+            <trim prefix="values(" suffix=")" suffixOverrides=",">
+                <if test="name!=null"> #{name},</if>
+                 <if test="hobby!=null">#{hobby},</if>
+                 <if test="major!=null"> #{major},</if>
+            </trim>
+        </insert>
+    
+    <select id="selectIn" parameterType="java.util.List" resultMap="BaseMap">
+        select
+         <include refid="Base_Column_List"/>
+         from student where name in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+
+    </select>
+
+
+</mapper>
